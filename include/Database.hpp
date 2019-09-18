@@ -34,8 +34,6 @@ public:
 
         if (connectDB() != SUCCESS)
           cout << mysql_error(&mysql) << endl;
-
-        resultClear();
     }
 
     ~Database()
@@ -45,11 +43,7 @@ public:
 
     int connectDB(void);
 
-    void registerUser(char* _ID, char* _PW);
-    void loginUser(char *_ID, char* _PW);
-    void saveUser(Body _player);
-    
-    Body getResult() { return resultBody; }
+    Body use(Body _user);
 
 private:
     MYSQL_RES   *res;           //쿼리문에 대한 result값을 받는 위치변수
@@ -58,13 +52,13 @@ private:
 
     static int  numinstantiated;
 
-    Body        resultBody;
-    void        resultClear();
-
     int runQuery(char *query);  // query문 실행
     int fetchRow(void);         // 결과값, 변수 row에 저장
     void closeDB(void);
     
+    Body registerUser(Body _player);
+    Body loginUser(Body _player);
+    Body saveUser(Body _player);
 };
 
 #endif

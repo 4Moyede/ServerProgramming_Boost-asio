@@ -15,24 +15,27 @@ enum class MessageHeader : uint16_t
     NONE                = 0,
     
 	LOGIN_REQUEST       = 1,
-    LOGIN_FAIL          = 2,
+	LOGIN_SUCCESS		= 2,
+    LOGIN_FAIL          = 3,
     
-	REGISTER_USERID     = 3,
-    REGISTER_FAIL       = 4,
+	REGISTER_USERID     = 4,
+	REGISTER_SUCCESS	= 5,
+    REGISTER_FAIL       = 6,
 
-    CHANGE_STATUS       = 5,
+    CHANGE_STATUS       = 7,
+	CHANGE_SUCCESS		= 8,
+	CHANGE_FAIL			= 9,
 
-    READY               = 6,
-	GAME_START			= 7,
-	GAME 				= 8,
-	GAME_END	        = 9,
+    READY               = 10,
+	GAME_START			= 11,
+	GAME 				= 12,
 
-	RANK_ONE			= 10,
-	RANK_TWO			= 11,
-	RANK_THREE			= 12,
-	RANK_FOUR			= 13,
-	RANK_FIVE			= 14,
-	RANK_SIX			= 15
+	RANK_ONE			= 13,
+	RANK_TWO			= 14,
+	RANK_THREE			= 15,
+	RANK_FOUR			= 16,
+	RANK_FIVE			= 17,
+	RANK_SIX			= 18
 };
 
 enum class KEYBOARD : uint16_t

@@ -22,19 +22,16 @@ void NetworkListener::handle_receive(const boost::system::error_code& error, std
 
         if(recv_Body._code == MessageHeader::LOGIN_REQUEST){
             cout << "Recv Login Request from " << recv_Body._uniqueUserID << "\n";
-            database_.loginUser(recv_Body._ID, recv_Body._PW);
-            send_Body[0] = database_.getResult();
+            send_Body[0] = database_.use(recv_Body);
 
             if(send_Body[0]._code != MessageHeader::LOGIN_FAIL){
-                send_Body[0]._maxHP = recv_Body._maxHP;
                 User new_User(send_Body[0]);
                 send_Body[0] = lobbymanager_.LoginUser(new_User);
             }
         }
         else if(recv_Body._code == MessageHeader::REGISTER_USERID){
             cout << "Recv Register Request from " << recv_Body._uniqueUserID << "\n";
-            database_.registerUser(recv_Body._ID, recv_Body._PW);
-            send_Body[0] = database_.getResult();
+            send_Body[0] = database_.use(recv_Body);
         }
         else if(recv_Body._code == MessageHeader::READY){
             cout << "Recv Ready from " << recv_Body._uniqueUserID << "\n";
@@ -48,10 +45,6 @@ void NetworkListener::handle_receive(const boost::system::error_code& error, std
         else if(recv_Body._code == MessageHeader::GAME){
             cout << "Recv Game from " << recv_Body._uniqueUserID << "\n";
             gamemanager_.playGame(recv_Body, send_Body);
-        }
-        else if(recv_Body._code == MessageHeader::GAME_END){
-            cout << "Recv Game End from " << recv_Body._uniqueUserID << "\n";
-            send_Body[0] = gamemanager_.endGame(recv_Body);
         }
         else if(recv_Body._code == MessageHeader::CHANGE_STATUS){
             cout << "Recv Change Status from " << recv_Body._uniqueUserID << "\n";

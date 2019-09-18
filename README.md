@@ -26,22 +26,27 @@ We aim to establish "existing practice" and provide reference implementations so
 ```c++
 enum class MessageHeader
 {
-    // Sign in, to LobbyManager
+    NONE                = 0,
+
+    // Sign in, to Database and LobbyManager
     LOGIN_REQUEST       = 1,
-    LOGIN_FAIL          = 2,
+    LOGIN_SUCCESS       = 2,
+    LOGIN_FAIL          = 3,
 
-    // Sign up, to LobbyManager
-    REGISTER_USERID     = 3,
-    REGISTER_FAIL       = 4,
+    // Sign up, to Database
+    REGISTER_USERID     = 4,
+    REGISTER_SUCCESS    = 5,
+    REGISTER_FAIL       = 6,
 
-    // Change Character, to LobbyManager
-    CHANGE_STATUS       = 5,
+    // Change Character, to Database and LobbyManager
+    CHANGE_STATUS       = 7,
+    CHANGE_SUCCESS      = 8,
+    CHANGE_FAIL         = 9,
 
     // Game, to GameManager
-    READY               = 6,
-    GAME_START          = 7,
-    GAME                = 8,
-    GAME_END            = 9,
+    READY               = 10,
+    GAME_START          = 11,
+    GAME                = 12,
 };
 ```
 
