@@ -10,10 +10,12 @@
 #define LobbyManager_HPP
 
 #include "User.hpp"
+#include "Database.hpp"
 #include "GameManager.hpp"
 #include <queue>
 #include <set>
 #include <assert.h>
+#include <algorithm>
 
 class LobbyManager
 {
@@ -24,6 +26,7 @@ private:
 
     std::vector<int>    ready_players;
     
+    Database&           database_;
     GameManager&        game_;
     static int          numinstantiated;
 
@@ -31,8 +34,8 @@ private:
 
 public:
 
-    LobbyManager(GameManager &gamemanager)
-    :game_(gamemanager), many(0)
+    LobbyManager(Database &database, GameManager &gamemanager)
+    :database_(database), game_(gamemanager), many(0)
     {
         assert(numinstantiated < 1);
         numinstantiated++;
@@ -40,7 +43,7 @@ public:
         initializeID();
     }
 
-    Body LoginUser(User user);
+    Body LoginUser(Body user);
     void LogoutUser(User user);
     Body setReady(Body user);
 

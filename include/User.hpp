@@ -41,6 +41,9 @@ public:
     void            setUniqueUserID(int _id) { _player_data._uniqueUserID = _id; }
     void            setPlayerNumber(int _num) { _player_data._playerNumber = _num; }
     void            setHPFull() { _player_data._curHP = _player_data._maxHP; }
+    void            setPlayerStatus(char *status) { strcmp(_player_data._player_stat, status); }
+
+    bool            operator==(User another){ return strcmp(this->getBody()._ID, another.getBody()._ID) == 0? true : false; }
 };
 
 #endif

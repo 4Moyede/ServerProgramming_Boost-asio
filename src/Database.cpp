@@ -13,6 +13,8 @@ Body Database::use(Body _user)
 	case MessageHeader::REGISTER_USERID:
 		resultBody = registerUser(_user);
 		break;
+	case MessageHeader::CHANGE_STATUS:
+		resultBody = saveUser(_user);
 	default:
 		break;
 	}
@@ -60,8 +62,12 @@ Body Database::loginUser(Body _player)
 		cout << "Login Success\n";
 		strcpy(_player._player_stat, row[3]);
 		_player._maxHP = 100;
+		_player._curHP = 0;
 		_player._keyboard = KEYBOARD::NONE;
-		_player._x = _player._y = 0;
+		_player._playerNumber = -1;
+		_player._uniqueGameID = -1;
+		_player._uniqueUserID = -1;
+		_player._x = _player._y = -1;
 		_player._code = MessageHeader::LOGIN_SUCCESS;
 	}
 	else{

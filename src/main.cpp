@@ -25,7 +25,7 @@ int main()
     
         Database        database;
         GameManager     gamemanager;
-        LobbyManager    lobbymanager(gamemanager);
+        LobbyManager    lobbymanager(database, gamemanager);
         NetworkListener network(io_service, PORT, database, lobbymanager, gamemanager);
 
         while(true){

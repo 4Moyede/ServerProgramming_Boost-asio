@@ -9,21 +9,25 @@ void LobbyManager::initializeID()
     many = 0;
 }
 
-Body LobbyManager::LoginUser(User newUser)
+Body LobbyManager::LoginUser(Body user)
 {
-    if(std::strcmp(user_[newUser.getUniqueUserID()].getID(), newUser.getID()) == 0 || many == MAXUSERS){
-        newUser.setMessageHeader(MessageHeader::LOGIN_FAIL);
-        return newUser.getBody();
+    Body login = database_.use(user);
+    if(login._code == MessageHeader::LOGIN_SUCCESS){
+        // 사용자가 MAXUSERS명 인 경우, 혹은 이미 로그인 되어있는 사용자인 경우 FAIL
+        if(many == MAXUSERS || find(user_, user_+many, User(login)) != user_+many){
+            login._code = MessageHeader::LOGIN_FAIL;
+            return login;
+        }
+
+        // 로그인한 User에게 고유한 번호를 부여
+        int user_Number = user_ID.front();
+        user_ID.pop();
+        login._uniqueUserID = user_Number;
+        user_[user_Number] = User(login);
+        many++;
     }
-
-    int user_Number = user_ID.front();
-    user_ID.pop();
-
-    newUser.setUniqueUserID(user_Number);
-    user_[user_Number] = newUser;
-    many++;
-
-    return user_[user_Number].getBody();
+    
+    return login;
 }
 
 void LobbyManager::LogoutUser(User oldUser)
@@ -31,40 +35,21 @@ void LobbyManager::LogoutUser(User oldUser)
     Body oldBody = oldUser.getBody();
     user_[oldUser.getUniqueUserID()] = User();
     user_ID.push(oldBody._uniqueUserID);
+
+    oldBody._code = MessageHeader::CHANGE_STATUS;
+    database_.use(oldBody);
 }
 
 Body LobbyManager::setReady(Body user)
 {
-    if(user_[user._uniqueUserID].getHeader() != MessageHeader::GAME_START){
-        if(user_[user._uniqueUserID].getHeader() != MessageHeader::READY){
-            user_[user._uniqueUserID].setMessageHeader(MessageHeader::READY);
-            ready_players.push_back(user._uniqueUserID);
 
-            if(ready_players.size() == MAXPLAYERS){
-                int gameID = game_.getGameID();
-                for(int i = 0; i < MAXPLAYERS; i++){
-                    user_[ready_players[i]].setMessageHeader(MessageHeader::GAME_START);
-                    user_[ready_players[i]].setUniqueGameID(gameID);
-                }
-                ready_players.clear();
-                user_[user._uniqueUserID].setHPFull();
-                int playerNum = game_.startGame(user_[user._uniqueUserID]);
-                user_[user._uniqueUserID].setPlayerNumber(playerNum);
-                std::cout << playerNum << " player added\n";
-            }
-        }
-    }
-    else{
-        user_[user._uniqueUserID].setHPFull();
-        int playerNum = game_.startGame(user_[user._uniqueUserID]);
-        user_[user._uniqueUserID].setPlayerNumber(playerNum);
-        std::cout << playerNum << " player added\n";
-    }
-    return user_[user._uniqueUserID].getBody();
 }
 
 Body LobbyManager::changeStatus(Body user)
 {
-    user_[user._uniqueUserID].setBody(user);
-    return user_[user._uniqueUserID].getBody();
+    Body save = database_.use(user);
+    if(save._code == MessageHeader::CHANGE_SUCCESS)
+        user_[save._uniqueUserID].setPlayerStatus(save._player_stat);
+
+    return save;
 }
