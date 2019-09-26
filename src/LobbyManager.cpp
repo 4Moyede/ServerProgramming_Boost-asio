@@ -4,8 +4,8 @@ int LobbyManager::numinstantiated = 0;
 
 void LobbyManager::initializeID()
 {
-    while(!user_ID.empty())         user_ID.pop();
-    for(int i = 0 ; i < 100; i++)   user_ID.push(i);
+    while(!user_ID.empty())             user_ID.pop();
+    for(int i = 0 ; i < MAXUSERS; i++)  user_ID.push(i);
     many = 0;
 }
 
@@ -42,7 +42,25 @@ void LobbyManager::LogoutUser(User oldUser)
 
 Body LobbyManager::setReady(Body user)
 {
+    bool found = false;
+    for(int i = 0; i < MAXGAMES; i++){
+        if(ready_[i].game_end && ready_[i].players < MAXPLAYERS){
+            user._uniqueGameID = i;
+            user._playerNumber = ready_[i].players++;
+            ready_[i].player[user._playerNumber] = user;
+            if(ready_[i].players == MAXPLAYERS){
+                ready_[i].game_end = false;
+                gamemanager_.startGame(i, ready_[i]);
+            }
+            found = true;
+            break;
+        }
+    }
 
+    if(!found)
+        user._code = MessageHeader::LOGIN_FAIL;
+
+    return user;
 }
 
 Body LobbyManager::changeStatus(Body user)

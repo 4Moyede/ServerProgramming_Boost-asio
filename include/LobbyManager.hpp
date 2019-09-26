@@ -10,6 +10,7 @@
 #define LobbyManager_HPP
 
 #include "User.hpp"
+#include "Game.hpp"
 #include "Database.hpp"
 #include "GameManager.hpp"
 #include <queue>
@@ -20,14 +21,15 @@
 class LobbyManager
 {
 private:
-    User                user_[100];
+    User                user_[MAXUSERS];
+    Game                ready_[MAXGAMES];
     std::queue<int>     user_ID;
     int                 many;
 
     std::vector<int>    ready_players;
     
     Database&           database_;
-    GameManager&        game_;
+    GameManager&        gamemanager_;
     static int          numinstantiated;
 
     void initializeID();
@@ -35,17 +37,18 @@ private:
 public:
 
     LobbyManager(Database &database, GameManager &gamemanager)
-    :database_(database), game_(gamemanager), many(0)
+    :database_(database), gamemanager_(gamemanager), many(0)
     {
         assert(numinstantiated < 1);
         numinstantiated++;
-
+        
         initializeID();
     }
 
     Body LoginUser(Body user);
     void LogoutUser(User user);
     Body setReady(Body user);
+    int  getGameID();
 
     Body changeStatus(Body user);
 };

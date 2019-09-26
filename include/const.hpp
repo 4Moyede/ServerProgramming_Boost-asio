@@ -7,8 +7,12 @@
 
 #include <arpa/inet.h>
 
-const static uint16_t PORT                 = 7232;
-const static uint16_t MAXUSERS             = 100;
+const static uint16_t SHARED_MEMORY_KEY		= 1234;
+
+const static uint16_t PORT					= 7232;
+const static uint16_t MAXUSERS				= 100;
+const static uint16_t MAXPLAYERS			= 2;
+const static uint16_t MAXGAMES				= 10;
 
 enum class MessageHeader : uint16_t
 { 
@@ -27,15 +31,16 @@ enum class MessageHeader : uint16_t
 	CHANGE_FAIL			= 9,
 
     READY               = 10,
-	GAME_START			= 11,
-	GAME 				= 12,
+	READY_FAIL			= 11,
+	GAME_START			= 12,
+	GAME 				= 13,
 
-	RANK_ONE			= 13,
-	RANK_TWO			= 14,
-	RANK_THREE			= 15,
-	RANK_FOUR			= 16,
-	RANK_FIVE			= 17,
-	RANK_SIX			= 18
+	RANK_ONE			= 14,
+	RANK_TWO			= 15,
+	RANK_THREE			= 16,
+	RANK_FOUR			= 17,
+	RANK_FIVE			= 18,
+	RANK_SIX			= 19
 };
 
 enum class KEYBOARD : uint16_t
