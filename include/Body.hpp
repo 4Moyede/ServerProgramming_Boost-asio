@@ -10,23 +10,23 @@
 
 struct Body
 {
-    MessageHeader   _code;
+    MessageHeader   _code = MessageHeader::NONE;
 
     char            _ID[100];
     char            _PW[100];
 
-    KEYBOARD        _keyboard;
-    char             _player_stat[50];
+    KEYBOARD        _keyboard = KEYBOARD::NONE;
+    char             _player_stat[50] = "None";
 
-    int             _uniqueGameID;
-    int             _uniqueUserID;
-    int             _playerNumber;
+    int             _uniqueGameID = -1;
+    int             _uniqueUserID = -1;
+    int             _playerNumber = -1;
 
-    int             _x;
-    int             _y;
+    int             _x = 0;
+    int             _y = 0;
 
-    int             _maxHP;
-    int             _curHP;
+    int             _maxHP = 100;
+    int             _curHP = 0;
 };
 
 #endif

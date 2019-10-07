@@ -1,0 +1,23 @@
+language: cpp
+
+services:
+  - mysql 
+
+addons:
+  apt:
+    sources:
+      - mysql-5.7-trusty
+
+    packages: 
+      - libboost-all-dev
+      - mysql-server
+
+dist: trusty
+
+sudo: required
+
+before_install:
+  - export PATH=$PATH:$PWD/lib:$PWD/include
+  - mysql -e 'CRATE DATABASE Game_Players'
+
+script: "make && ./bin/main"

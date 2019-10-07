@@ -27,24 +27,22 @@ Body Database::registerUser(Body _player)
 {
 	char query[300];
 
-	sprintf(query, "SELECT ID FROM player_Data WHERE ID = \'%s\';", _player._ID);
+	sprintf(query, "SELECT ID FROM \'%s\' WHERE ID = \'%s\';", table, _player._ID);
 	runQuery(query);
 	if(fetchRow() == SUCCESS){
-		cout << "Register Fail...\n";
-		strcpy(_player._player_stat, "none");
+		std::cout << "Register Fail...\n";
 		_player._code = MessageHeader::REGISTER_FAIL;
 	}
 	else{
-		sprintf(query, "INSERT INTO player_Data(ID, PASSWORD, player_stat) VALUES (\"%s\", \"%s\", \"Basic\");", _player._ID, _player._PW);
+		sprintf(query, "INSERT INTO \'%s\'(ID, PASSWORD, player_stat) VALUES (\"%s\", \"%s\", \"Basic\");", table, _player._ID, _player._PW);
 		runQuery(query);
 		if(fetchRow()){
-			cout << "Register Success!\n";
+			std::cout << "Register Success!\n";
 			strcpy(_player._player_stat, "Basic");
 			_player._code = MessageHeader::REGISTER_SUCCESS;
 		}
 		else{
-			cout << "Register Fail...\n";
-			strcpy(_player._player_stat, "none");
+			std::cout << "Register Fail...\n";
 			_player._code = MessageHeader::REGISTER_FAIL;
 		}
 	}
@@ -56,23 +54,23 @@ Body Database::registerUser(Body _player)
 Body Database::loginUser(Body _player)
 {
 	char query[300];
-	sprintf(query, "SELECT * FROM player_Data WHERE ID = \'%s\' AND PASSWORD = \'%s\';", _player._ID, _player._PW);
+	sprintf(query, "SELECT * FROM \'%s\' WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
 	runQuery(query);
 	if(fetchRow() == SUCCESS){
-		cout << "Login Success\n";
-		strcpy(_player._player_stat, row[3]);
-		_player._maxHP = 100;
-		_player._curHP = 0;
-		_player._keyboard = KEYBOARD::NONE;
-		_player._playerNumber = -1;
-		_player._uniqueGameID = -1;
-		_player._uniqueUserID = -1;
-		_player._x = _player._y = -1;
-		_player._code = MessageHeader::LOGIN_SUCCESS;
+		if(!row[4]){
+			std::cout << "Login Success\n";
+			strcpy(_player._player_stat, row[3]);
+			_player._code = MessageHeader::LOGIN_SUCCESS;
+			sprintf(query, "UPDATE \'%s\' SET LOGIN = true WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
+			runQuery(query);
+		}
+		else{
+			std::cout << "Login Fail\n";
+			_player._code = MessageHeader::LOGIN_FAIL;
+		}
 	}
 	else{
-		cout << "Login Fail\n";
-		strcpy(_player._player_stat, "none");
+		std::cout << "Login Fail\n";
 		_player._code = MessageHeader::LOGIN_FAIL;
 	}
 
@@ -83,14 +81,18 @@ Body Database::loginUser(Body _player)
 Body Database::saveUser(Body _player)
 {	
 	char query[350];
-	sprintf(query, "UPDATE player_Data SET player_stat = \"%s\" WHERE ID = \"%s\" AND PASSWORD = \"%s\";", _player._player_stat,_player._ID, _player._PW);
+	if(_player._code == MessageHeader::CHANGE_STATUS)
+		sprintf(query, "UPDATE \'%s\' SET player_stat = \"%s\" WHERE ID = \"%s\" AND PASSWORD = \"%s\";", table, _player._player_stat,_player._ID, _player._PW);
+	else if(_player._code == MessageHeader::LOGOUT_REQUEST)
+		sprintf(query, "UPDATE \'%s\' SET player_stat = \"%s\" AND LOGIN = false WHERE ID = \"%s\" AND PASSWORD = \"%s\";", table, _player._player_stat,_player._ID, _player._PW);
 	runQuery(query);
+	
 	if(fetchRow()){
-		cout << "Change Success!\n";
+		std::cout << "Change Success!\n";
 		_player._code = MessageHeader::CHANGE_SUCCESS;
 	}
 	else{
-		cout << "Change Failed...\n";
+		std::cout << "Change Failed...\n";
 		_player._code = MessageHeader::CHANGE_FAIL;
 	}
 
@@ -129,11 +131,6 @@ int Database::fetchRow(void)
 // 디비 연결
 int Database::connectDB(void) 
 {
-	char *server = "127.0.0.1";
-	char *user = "GM";
-	char *password = "gameMaster1!";
-	char *database = "Game_Players";
-
 	mysql_init(&mysql);
 	conn = mysql_real_connect(&mysql, server, user, password, database, 3306, (char *)NULL, 0);
 

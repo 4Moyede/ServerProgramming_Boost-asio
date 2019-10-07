@@ -16,9 +16,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <string.h>
-using namespace std;
 
-#include "const.hpp"
 #include "Body.hpp"
 
 #define SUCCESS     0
@@ -33,7 +31,7 @@ public:
         numinstantiated++;
 
         if (connectDB() != SUCCESS)
-          cout << mysql_error(&mysql) << endl;
+          std::cout << mysql_error(&mysql) << std::endl;
     }
 
     ~Database()
@@ -59,6 +57,12 @@ private:
     Body registerUser(Body _player);
     Body loginUser(Body _player);
     Body saveUser(Body _player);
+
+	const char *server = "127.0.0.1";
+	const char *user = "GM";
+	const char *password = "gameMaster1!";
+	const char *database = "Game_Players";
+	const char *table = "player_Data";
 };
 
 #endif
