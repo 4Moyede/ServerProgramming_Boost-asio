@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 
 const static uint16_t SHARED_MEMORY_KEY		= 1234;
-
 const static uint16_t PORT					= 7232;
 const static uint16_t MAXUSERS				= 100;
 const static uint16_t MAXPLAYERS			= 2;
@@ -31,16 +30,14 @@ enum class MessageHeader : uint16_t
 	CHANGE_FAIL			= 9,
 
     READY               = 10,
-	READY_FAIL			= 11,
-	GAME_START			= 12,
-	GAME 				= 13,
+	READY_SUCCESS		= 11,
+	READY_FAIL			= 12,
 
-	RANK_ONE			= 14,
-	RANK_TWO			= 15,
-	RANK_THREE			= 16,
-	RANK_FOUR			= 17,
-	RANK_FIVE			= 18,
-	RANK_SIX			= 19
+	GAME_START			= 13,
+	GAME 				= 14,
+	GAME_END			= 15,
+
+	LOGOUT_REQUEST		= 16
 };
 
 enum class KEYBOARD : uint16_t
@@ -50,11 +47,11 @@ enum class KEYBOARD : uint16_t
 	KEY_SKILL1 			= 'A',
 	KEY_SKILL2 			= 'S',
 	KEY_SKILL3 			= 'D',
-	KEY_JUMP 			= 0x20, // VK_SPACE
+	KEY_JUMP 			= 0x20,
 	KEY_DASH 			= 'C',
-	KEY_RETURN 			= 'Z', // not use... maybe
-	KEY_MENU 			= 0x1B, // not use... maybe
-	KEY_OBJECT_USE 		= 0x26 // VK_UP
+	KEY_RETURN 			= 'Z',
+	KEY_MENU 			= 0x1B,
+	KEY_OBJECT_USE 		= 0x26
 };
 
 #endif
