@@ -9,8 +9,6 @@
 #ifndef LobbyManager_HPP
 #define LobbyManager_HPP
 
-#include "User.hpp"
-#include "Game.hpp"
 #include "Database.hpp"
 #include "GameManager.hpp"
 #include <queue>
@@ -22,8 +20,10 @@ class LobbyManager
 {
 private:
     User                user_[MAXUSERS];
-    Game                ready_[MAXGAMES];
+    Game                ready_;
+
     std::queue<int>     user_ID;
+    std::queue<int>     game_ID;
     int                 many;
 
     std::vector<int>    ready_players;
@@ -48,6 +48,8 @@ public:
     Body LoginUser(Body user);
     void LogoutUser(User user);
     Body setReady(Body user);
+    void endGame(int gameID);
+
     int  getGameID();
 
     Body changeStatus(Body user);

@@ -15,14 +15,20 @@ void GameManager::startGame(int gameID, Game game)
 
 void GameManager::playGame(Body player_, Body send_Body[])
 {
+    int game_id = player_._uniqueGameID;
+    int player_num = player_._playerNumber;
 
+    if(!player_._curHP)
+        game_[game_id].updatePlayerInfo(player_);
+
+    for(int idx = 0; idx < MAXPLAYERS; idx++)
+        send_Body[idx] = getPlayer(game_id, player_num);
 }
 
-Body GameManager::endGame(Body body)
+void GameManager::endGame(int gameID)
 {
-
+    game_[gameID] = Game();
 }
-
 
 Body GameManager::getPlayer(int gameid_, int playerNum_)
 {

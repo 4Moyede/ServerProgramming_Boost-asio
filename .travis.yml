@@ -16,8 +16,15 @@ dist: trusty
 
 sudo: required
 
-before_install:
+before_install:g
   - export PATH=$PATH:$PWD/lib:$PWD/include
-  - mysql -e 'CRATE DATABASE Game_Players'
+  - mysql -e "use mysql; update user set authentication_string=PASSWORD('') where User='root';"
+  - mysql -e "use mysql; update user set plugin='mysql_native_password'; FLUSH PRIVILEGES;"
+  - mysql_upgrade
+  - sudo service mysql restart
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS Game_Players CHARACTER SET utf8 COLLATE utf8_general_ci;'
+  - mysql -e "CREATE USER 'GM'@'%' IDENTIFIED BY 'gameMaster1!';"
+  - mysql -e "GRANT ALL PRIVILEGES ON Game_Players.* TO 'GM'@'%'; FLUSH PRIVILEGES;";
+  - mysql -e "CREATE TABLE player_Data ( PK INT(11) NOT NULL AUTO_INCREMENT, ID VARCHAR(100) NOT NULL, PASSWORD VARCHAR(100) NOT NULL, player_stat VARCHAR(50) NOT NULL, LOGIN BOOLEAN NOT NULL DEFAULT '0', PRIMARY KEY (PK) );"
 
 script: "make && ./bin/main"

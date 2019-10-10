@@ -31,11 +31,10 @@ private:
 public:
     GameManager();
 
-    int     getGameID();
-
     void    startGame(int gameID, Game game);
     void    playGame(Body player_, Body send_Body[]);
-    Body    endGame(Body player_);
+    void    endGame(int gameID);
+
     Body    getPlayer(int gameid_, int playerNum_);
 };
 
