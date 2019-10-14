@@ -37,11 +37,12 @@ private:
 public:
 
     LobbyManager(Database &database, GameManager &gamemanager)
-    :database_(database), gamemanager_(gamemanager), many(0)
+    : database_(database), gamemanager_(gamemanager), many(0)
     {
         assert(numinstantiated < 1);
         numinstantiated++;
-        
+        many = 0;
+
         initializeID();
     }
 
@@ -53,6 +54,7 @@ public:
     int  getGameID();
 
     Body changeStatus(Body user);
+    Body logout(Body user);
 };
 
 #endif

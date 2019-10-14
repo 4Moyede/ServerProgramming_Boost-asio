@@ -57,6 +57,7 @@ private:
     Body registerUser(Body _player);
     Body loginUser(Body _player);
     Body saveUser(Body _player);
+    Body logout(Body _player);
 
 	const char *server = "127.0.0.1";
 	const char *user = "GM";

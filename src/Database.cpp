@@ -15,6 +15,8 @@ Body Database::use(Body _user)
 		break;
 	case MessageHeader::CHANGE_STATUS:
 		resultBody = saveUser(_user);
+	case MessageHeader::LOGOUT_REQUEST:
+		resultBody = logout(_user);
 	default:
 		break;
 	}
@@ -27,22 +29,21 @@ Body Database::registerUser(Body _player)
 {
 	char query[300];
 
-	sprintf(query, "SELECT ID FROM \'%s\' WHERE ID = \'%s\';", table, _player._ID);
+	sprintf(query, "SELECT ID FROM %s WHERE ID = \'%s\';", table, _player._ID);
 	runQuery(query);
 	if(fetchRow() == SUCCESS){
-		std::cout << "Register Fail...\n";
+		std::cout << "Register Fail : ID is already Exist\n";
 		_player._code = MessageHeader::REGISTER_FAIL;
 	}
 	else{
-		sprintf(query, "INSERT INTO \'%s\'(ID, PASSWORD, player_stat) VALUES (\"%s\", \"%s\", \"Basic\");", table, _player._ID, _player._PW);
-		runQuery(query);
-		if(fetchRow()){
+		sprintf(query, "INSERT INTO %s (ID, PASSWORD, player_stat) VALUES (\"%s\", \"%s\", \"Basic\");", table, _player._ID, _player._PW);
+		if(runQuery(query) == SUCCESS){
 			std::cout << "Register Success!\n";
 			strcpy(_player._player_stat, "Basic");
 			_player._code = MessageHeader::REGISTER_SUCCESS;
 		}
 		else{
-			std::cout << "Register Fail...\n";
+			std::cout << "Register Fail : Database Error\n";
 			_player._code = MessageHeader::REGISTER_FAIL;
 		}
 	}
@@ -54,23 +55,24 @@ Body Database::registerUser(Body _player)
 Body Database::loginUser(Body _player)
 {
 	char query[300];
-	sprintf(query, "SELECT * FROM \'%s\' WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
+	sprintf(query, "SELECT * FROM %s WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
 	runQuery(query);
 	if(fetchRow() == SUCCESS){
-		if(!row[4]){
-			std::cout << "Login Success\n";
+		if(!strcmp(row[4], "0")){
 			strcpy(_player._player_stat, row[3]);
-			_player._code = MessageHeader::LOGIN_SUCCESS;
-			sprintf(query, "UPDATE \'%s\' SET LOGIN = true WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
-			runQuery(query);
+			sprintf(query, "UPDATE %s SET LOGIN = 1 WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._ID, _player._PW);
+			if(runQuery(query) == SUCCESS){
+				std::cout << "Login Success\n";
+				_player._code = MessageHeader::LOGIN_SUCCESS;
+			}
 		}
 		else{
-			std::cout << "Login Fail\n";
+			std::cout << "Login Fail: Already Login\n";
 			_player._code = MessageHeader::LOGIN_FAIL;
 		}
 	}
 	else{
-		std::cout << "Login Fail\n";
+		std::cout << "Login Fail: check ID, PW\n";
 		_player._code = MessageHeader::LOGIN_FAIL;
 	}
 
@@ -81,18 +83,31 @@ Body Database::loginUser(Body _player)
 Body Database::saveUser(Body _player)
 {	
 	char query[350];
-	if(_player._code == MessageHeader::CHANGE_STATUS)
-		sprintf(query, "UPDATE \'%s\' SET player_stat = \"%s\" WHERE ID = \"%s\" AND PASSWORD = \"%s\";", table, _player._player_stat,_player._ID, _player._PW);
-	else if(_player._code == MessageHeader::LOGOUT_REQUEST)
-		sprintf(query, "UPDATE \'%s\' SET player_stat = \"%s\" AND LOGIN = false WHERE ID = \"%s\" AND PASSWORD = \"%s\";", table, _player._player_stat,_player._ID, _player._PW);
-	runQuery(query);
-	
-	if(fetchRow()){
+	sprintf(query, "UPDATE %s SET player_stat = \'%s\' WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._player_stat,_player._ID, _player._PW);
+
+	if(runQuery(query) == SUCCESS){
 		std::cout << "Change Success!\n";
 		_player._code = MessageHeader::CHANGE_SUCCESS;
 	}
 	else{
 		std::cout << "Change Failed...\n";
+		_player._code = MessageHeader::CHANGE_FAIL;
+	}
+
+	return _player;
+}
+
+Body Database::logout(Body _player)
+{
+	char query[350];
+	sprintf(query, "UPDATE %s SET player_stat = \'%s\', LOGIN = 0 WHERE ID = \'%s\' AND PASSWORD = \'%s\';", table, _player._player_stat,_player._ID, _player._PW);
+
+	if(runQuery(query) == SUCCESS){
+		std::cout << "Log Out Success!\n";
+		_player._code = MessageHeader::CHANGE_SUCCESS;
+	}
+	else{
+		std::cout << "Log Out fail...\n";
 		_player._code = MessageHeader::CHANGE_FAIL;
 	}
 
@@ -110,7 +125,7 @@ int Database::runQuery(char *query)
 	}
 
 	res = mysql_store_result(conn);
-	return fetchRow();
+	return SUCCESS;
 }
 
 // 로우 조회
@@ -119,10 +134,12 @@ int Database::fetchRow(void)
 	if (res)
 	{
 		row = mysql_fetch_row(res);
-		if (!row) // MySQL Fetch failed
+		if (!row){ // MySQL Fetch failed
 			return FAIL;
-		else
+		}
+		else{
 			return SUCCESS;
+		}
 	}
 	// MySQL Query Result Null
 	return FAIL;

@@ -4,45 +4,51 @@ int NetworkListener::numinstantiated = 0;
 
 void NetworkListener::start_receive()
 {
-    socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_, 
+    socket_.async_receive_from( boost::asio::buffer(recv_buffer_), remote_endpoint_, 
                                 boost::bind(&NetworkListener::handle_receive, this,
                                             boost::asio::placeholders::error,
-                                            boost::asio::placeholders::bytes_transferred)
-                                            );
+                                            boost::asio::placeholders::bytes_transferred) );
 }
 
-void NetworkListener::handle_receive(const boost::system::error_code& error, std::size_t bytecounnt)
+void NetworkListener::handle_receive(const boost::system::error_code& error, std::size_t bytecount)
 {
-    if (!error || error == boost::asio::error::message_size)
+    if (!error || error == boost::asio::error::message_size || bytecount)
     {
         Body recv_ = recv_buffer_.front();
-        Body send_[MAXPLAYERS];
         std::cout << "\n";
         printBody(recv_);
 
         if(recv_._code == MessageHeader::LOGIN_REQUEST){
-            std::cout << "Recv Login Request from " << recv_._uniqueUserID << "\n";
-            send_[0] = lobbymanager_.LoginUser(recv_);
+            std::cout << "Recv Login Request from " << recv_._ID << "\n";
+            send_buffer_[0] = lobbymanager_.LoginUser(recv_);
         }
         else if(recv_._code == MessageHeader::REGISTER_USERID){
-            std::cout << "Recv Register Request from " << recv_._uniqueUserID << "\n";
-            send_[0] = database_.use(recv_);
+            std::cout << "Recv Register Request from " << recv_._ID << "\n";
+            send_buffer_[0] = database_.use(recv_);
         }
         else if(recv_._code == MessageHeader::READY){
             std::cout << "Recv Ready from " << recv_._uniqueUserID << "\n";
-            send_[0] = lobbymanager_.setReady(recv_);
+            send_buffer_[0] = lobbymanager_.setReady(recv_);
+        }
+        else if(recv_._code == MessageHeader::READY_SUCCESS){
+            std::cout << "Recv Ready for game start from " << recv_._uniqueUserID << "\n";
+            send_buffer_[0] = gamemanager_.waitStart(recv_);
         }
         else if(recv_._code == MessageHeader::GAME){
             std::cout << "Recv Game from " << recv_._uniqueUserID << "\n";
-            gamemanager_.playGame(recv_, send_);
+            gamemanager_.playGame(recv_, send_buffer_);
         }
         else if(recv_._code == MessageHeader::CHANGE_STATUS){
             std::cout << "Recv Change Status from " << recv_._uniqueUserID << "\n";
-            send_[0] = lobbymanager_.changeStatus(recv_);
+            send_buffer_[0] = lobbymanager_.changeStatus(recv_);
         }
-
-        start_receive();
+        else if(recv_._code == MessageHeader::LOGOUT_REQUEST){
+            std::cout << "Recv LogOut from " << recv_._uniqueUserID << "\n";
+            send_buffer_[0] = lobbymanager_.logout(recv_);
+        }
     }
+
+    start_receive();
 }
 
 void NetworkListener::handle_send(const boost::system::error_code& error, std::size_t bytecount)
@@ -52,6 +58,9 @@ void NetworkListener::handle_send(const boost::system::error_code& error, std::s
 
 void NetworkListener::printBody(Body body_)
 {
+    time_t now = time(NULL);
+    struct tm *curr = localtime(&now);
+    std::cout << curr->tm_mon << '/' << curr->tm_mday << ' ' << curr->tm_hour << ':' << curr->tm_min << ':' << curr->tm_sec << '\n';
     std::cout << "Code    : " << int(body_._code) << "\n";
     std::cout << "ID      : " << body_._ID << "\n";
     std::cout << "User ID : " << body_._uniqueUserID << "\n";

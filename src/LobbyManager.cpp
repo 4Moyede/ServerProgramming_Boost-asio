@@ -49,7 +49,7 @@ Body LobbyManager::setReady(Body user)
     if(game_ID.empty())
         user._code = MessageHeader::READY_FAIL;
     else{
-        user = ready_.ready(user);
+        user = ready_.ready(user_[user._uniqueUserID]);
 
         if(ready_.isFull()){
             gamemanager_.startGame(ready_.game_ID, ready_);
@@ -68,4 +68,10 @@ Body LobbyManager::changeStatus(Body user)
         user_[save._uniqueUserID].setPlayerStatus(save._player_stat);
 
     return save;
+}
+
+Body LobbyManager::logout(Body user)
+{
+    Body logout = database_.use(user);
+    return logout;
 }
