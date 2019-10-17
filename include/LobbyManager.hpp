@@ -16,6 +16,9 @@
 #include <assert.h>
 #include <algorithm>
 
+#include <boost/asio.hpp>
+using boost::asio::ip::udp;
+
 class LobbyManager
 {
 private:
@@ -42,11 +45,11 @@ public:
         assert(numinstantiated < 1);
         numinstantiated++;
         many = 0;
-
+        
         initializeID();
     }
 
-    Body LoginUser(Body user);
+    Body LoginUser(Body user, udp::endpoint ep);
     void LogoutUser(User user);
     Body setReady(Body user);
     void endGame(int gameID);

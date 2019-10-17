@@ -14,7 +14,7 @@ void LobbyManager::initializeID()
     ready_.game_ID = game_ID.front();
 }
 
-Body LobbyManager::LoginUser(Body user)
+Body LobbyManager::LoginUser(Body user, udp::endpoint ep)
 {
     // 사용자가 MAXUSERS명 인 경우, 혹은 이미 로그인 되어있는 사용자인 경우 FAIL
     if(many == MAXUSERS){
@@ -27,7 +27,7 @@ Body LobbyManager::LoginUser(Body user)
         // 로그인한 User에게 고유한 번호를 부여
         login._uniqueUserID = user_ID.front();
         user_ID.pop();
-        user_[login._uniqueUserID] = User(login);
+        user_[login._uniqueUserID] = User(login, ep);
         many++;
     }
     

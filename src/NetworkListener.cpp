@@ -20,7 +20,7 @@ void NetworkListener::handle_receive(const boost::system::error_code& error, std
 
         if(recv_._code == MessageHeader::LOGIN_REQUEST){
             std::cout << "Recv Login Request from " << recv_._ID << "\n";
-            send_buffer_[0] = lobbymanager_.LoginUser(recv_);
+            send_buffer_[0] = lobbymanager_.LoginUser(recv_, remote_endpoint_);
         }
         else if(recv_._code == MessageHeader::REGISTER_USERID){
             std::cout << "Recv Register Request from " << recv_._ID << "\n";
@@ -29,14 +29,6 @@ void NetworkListener::handle_receive(const boost::system::error_code& error, std
         else if(recv_._code == MessageHeader::READY){
             std::cout << "Recv Ready from " << recv_._uniqueUserID << "\n";
             send_buffer_[0] = lobbymanager_.setReady(recv_);
-        }
-        else if(recv_._code == MessageHeader::READY_SUCCESS){
-            std::cout << "Recv Ready for game start from " << recv_._uniqueUserID << "\n";
-            send_buffer_[0] = gamemanager_.waitStart(recv_);
-        }
-        else if(recv_._code == MessageHeader::GAME){
-            std::cout << "Recv Game from " << recv_._uniqueUserID << "\n";
-            gamemanager_.playGame(recv_, send_buffer_);
         }
         else if(recv_._code == MessageHeader::CHANGE_STATUS){
             std::cout << "Recv Change Status from " << recv_._uniqueUserID << "\n";
@@ -48,12 +40,20 @@ void NetworkListener::handle_receive(const boost::system::error_code& error, std
         }
     }
 
-    start_receive();
+    start_send();
+}
+
+void NetworkListener::start_send()
+{
+    socket_.async_send_to(  boost::asio::buffer(send_buffer_), remote_endpoint_, 
+                            boost::bind(&NetworkListener::handle_send, this,
+                                        boost::asio::placeholders::error,
+                                        boost::asio::placeholders::bytes_transferred) );
 }
 
 void NetworkListener::handle_send(const boost::system::error_code& error, std::size_t bytecount)
 {
-
+    start_receive();
 }
 
 void NetworkListener::printBody(Body body_)
@@ -66,8 +66,8 @@ void NetworkListener::printBody(Body body_)
     std::cout << "User ID : " << body_._uniqueUserID << "\n";
     std::cout << "Game ID : " << body_._uniqueGameID << "\n";
     std::cout << "Input   : " << int(body_._keyboard) << "\n";
-    std::cout << "Player  : " << body_._playerNumber << "\n";;
-    std::cout << "State   : " << body_._player_stat << "\n";;
+    std::cout << "Player  : " << body_._playerNumber << "\n";
+    std::cout << "State   : " << body_._player_stat << "\n";
     std::cout << "MaxHP   : " << body_._maxHP << "\n";
     std::cout << "CurHP   : " << body_._curHP << "\n";
 }

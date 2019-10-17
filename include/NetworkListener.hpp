@@ -6,7 +6,6 @@
 #ifndef NetworkListener_HPP
 #define NetworkListener_HPP
 
-#include <ctime>
 #include <iostream>
 #include <assert.h>
 #include <boost/array.hpp>
@@ -28,6 +27,7 @@ class NetworkListener
 private:
     void start_receive();
     void handle_receive(const boost::system::error_code& error, std::size_t bytecounnt);
+    void start_send();
     void handle_send(const boost::system::error_code& error, std::size_t bytecount);
 
     Database&            database_;
@@ -37,8 +37,7 @@ private:
     udp::socket socket_;
     udp::endpoint remote_endpoint_;
     boost::array<Body, 1> recv_buffer_;
-
-    boost::asio::deadline_timer timer_;
+    boost::array<Body, 1> send_buffer_;
 
     static int numinstantiated;
 
@@ -47,7 +46,6 @@ private:
 public:
     NetworkListener(boost::asio::io_service &io_service, int port, Database &database, LobbyManager &lobbymanager, GameManager &gamemanager):
         socket_(io_service, udp::endpoint(udp::v4(), port)),
-        timer_(io_service, boost::posix_time::seconds(1)),
         database_(database), lobbymanager_(lobbymanager), gamemanager_(gamemanager)
     {
         assert(numinstantiated < 1);

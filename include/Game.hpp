@@ -13,12 +13,27 @@ struct Game
     bool                dead[MAXPLAYERS] = { false, };
     bool                game_end = true;
 
-
-    bool isFull(){
+    bool isFull()
+    {
         return number_of == MAXPLAYERS ? true : false;
     }
 
-    Body ready(User user){
+    bool isGameOver()
+    {
+        bool over = true;
+        for(int i = 0; i < MAXPLAYERS; i++)
+        {
+            if(player[i].getCurHP())
+            {
+                over = false;
+                break;
+            }
+        }
+        return over;
+    }
+
+    Body ready(User user)
+    {
         user.setUniqueGameID(game_ID);
         user.setPlayerNumber(number_of);
         user.setMessageHeader(MessageHeader::READY_SUCCESS);
@@ -29,7 +44,8 @@ struct Game
         return user.getBody();
     }
 
-    void init(int id){
+    void init(int id)
+    {
         game_ID = id;
         for(int i = 0; i < MAXPLAYERS; i++){
             player[i] = User();
@@ -39,7 +55,8 @@ struct Game
         game_end = true;
     }
 
-    void updatePlayerInfo(Body player_){
+    void updatePlayerInfo(Body player_)
+    {
         player[player_._playerNumber].setBody(player_);
     }
     
