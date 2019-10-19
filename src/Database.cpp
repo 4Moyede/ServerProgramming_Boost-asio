@@ -15,8 +15,10 @@ Body Database::use(Body _user)
 		break;
 	case MessageHeader::CHANGE_STATUS:
 		resultBody = saveUser(_user);
+		break;
 	case MessageHeader::LOGOUT_REQUEST:
 		resultBody = logout(_user);
+		break;
 	default:
 		break;
 	}
