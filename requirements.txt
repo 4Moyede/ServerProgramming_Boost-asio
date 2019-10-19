@@ -1,0 +1,3 @@
+libboost-dev 1.65.1.0ubuntu1
+mysql-server 5.7.27-0ubuntu0.18.04.1
+libmysqlclient-dev 5.7.27-0ubuntu0.18.04.1
