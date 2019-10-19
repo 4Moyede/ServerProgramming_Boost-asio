@@ -8,11 +8,11 @@
 
 #include <iostream>
 #include <queue>
+#include <vector>
 #include <assert.h>
-#include <boost/array.hpp>
-#include <boost/asio.hpp>
 #include <sys/types.h>
-#include <sys/shm.h>
+#include <boost/bind.hpp>
+#include <boost/array.hpp>
 
 #include "User.hpp"
 #include "Body.hpp"
@@ -25,14 +25,17 @@ class GameManager
 {
 private:
     Game                game_[MAXGAMES];
-
     static int          numinstantiated;
-
+    
 public:
     GameManager();
 
     void    startGame(int gameID, Game game);
-    void    playGame(Body player_, Body send_Body[]);
+    void    playGame(Game game);
+    
+    void    handle_receive(Game &game, const boost::system::error_code& error, std::size_t bytecounnt);
+    void    handle_send(Game &game, const boost::system::error_code& error, std::size_t bytecounnt);
+    
     void    endGame(int gameID);
 
     Body    getPlayer(int gameid_, int playerNum_);

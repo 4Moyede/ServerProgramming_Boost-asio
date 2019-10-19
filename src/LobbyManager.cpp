@@ -11,7 +11,8 @@ void LobbyManager::initializeID()
     for(int i = 0 ; i < MAXGAMES; i++)  game_ID.push(i);
 
     many = 0;
-    ready_.game_ID = game_ID.front();
+    ready_.setGameID(game_ID.front());
+    game_ID.pop();
 }
 
 Body LobbyManager::LoginUser(Body user, udp::endpoint ep)
@@ -52,8 +53,8 @@ Body LobbyManager::setReady(Body user)
         user = ready_.ready(user_[user._uniqueUserID]);
 
         if(ready_.isFull()){
-            gamemanager_.startGame(ready_.game_ID, ready_);
-            ready_.init(game_ID.front());
+            gamemanager_.startGame(ready_.getGame_ID(), ready_);
+            ready_ = Game();
             game_ID.pop();
         }
     }

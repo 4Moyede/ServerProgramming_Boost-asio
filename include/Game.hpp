@@ -2,64 +2,37 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include <boost/array.hpp>
 #include "const.hpp"
 #include "User.hpp"
 
-struct Game
+class Game
 {
-    int                 game_ID = -1;
-    User                player[MAXPLAYERS];
-    int                 number_of = 0;
-    bool                dead[MAXPLAYERS] = { false, };
-    bool                game_end = true;
+private:
+    int             game_ID;
+    User            player[MAXPLAYERS];
+    int             number_of;
 
-    bool isFull()
-    {
-        return number_of == MAXPLAYERS ? true : false;
-    }
+public:
+    Game();
 
-    bool isGameOver()
-    {
-        bool over = true;
-        for(int i = 0; i < MAXPLAYERS; i++)
-        {
-            if(player[i].getCurHP())
-            {
-                over = false;
-                break;
-            }
-        }
-        return over;
-    }
+    bool            isGameOver();
+    bool            isFull()                        { return number_of == MAXPLAYERS ? true : false; }
 
-    Body ready(User user)
-    {
-        user.setUniqueGameID(game_ID);
-        user.setPlayerNumber(number_of);
-        user.setMessageHeader(MessageHeader::READY_SUCCESS);
-        
-        player[number_of] = user;
-        number_of++;
+    Body            ready(User user);
 
-        return user.getBody();
-    }
+    int             getGame_ID()                    { return game_ID; }
+    User            getPlayer(int i)                { return player[i]; }
+    Body            getBody(int i)                  { return player[i].getBody(); }
+    udp::endpoint   getAddress(int i)               { return player[i].getAddress(); }
+    int             getNumberOf()                   { return number_of; }
 
-    void init(int id)
-    {
-        game_ID = id;
-        for(int i = 0; i < MAXPLAYERS; i++){
-            player[i] = User();
-            dead[i] = false;
-        }
-        number_of = 0;
-        game_end = true;
-    }
+    void            setGameID(int gameid)           { game_ID = gameid; }
+    void            updatePlayerInfo();
+    void            setNumberOf(int number)         { number_of = number; }
 
-    void updatePlayerInfo(Body player_)
-    {
-        player[player_._playerNumber].setBody(player_);
-    }
-    
+    boost::array<Body, 1>           recv_body;
+    boost::array<Body, MAXPLAYERS>  send_body;
 };
 
 #endif
