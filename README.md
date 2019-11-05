@@ -1,14 +1,5 @@
 # Server Programming
 
-## Structure
-
-![structure](./img/structure.png)
-
-+ __NetworkServer__ : Client와의 UDP 동기화 통신을 담당. Receive된 Body의 MessageHeader를 확인한다.
-+ __LobbyManager__ : 현재 Login한 User들을 관리.
-+ __GameManager__ : 현재 진행되고 있는 게임의 방을 관리.
-+ __Database__ : MySQL Server와의 연동을 담당.
-
 ## Libraries
 
 ### Boost
@@ -20,6 +11,31 @@
 We emphasize libraries that work well with the C++ Standard Library. Boost libraries are intended to be widely useful, and usable across a broad spectrum of applications. The Boost license encourages both commercial and non-commercial use.
 
 We aim to establish "existing practice" and provide reference implementations so that Boost libraries are suitable for eventual standardization. Ten Boost libraries are included in the C++ Standards Committee's Library Technical Report (TR1) and in the new C++11 Standard. C++11 also includes several more Boost libraries in addition to those from TR1. More Boost libraries are proposed for standardization in C++17.
+
+### MySQL
+
+![mysql](./img/mysql.png)
+
+The [MySQL™ software](https://dev.mysql.com/) delivers a very fast, multithreaded, multi-user, and robust SQL (Structured Query Language) database server. MySQL Server is intended for mission-critical, heavy-load production systems as well as for embedding into mass-deployed software. Oracle is a registered trademark of Oracle Corporation and/or its affiliates. MySQL is a trademark of Oracle Corporation and/or its affiliates, and shall not be used by Customer without Oracle's express written authorization. Other names may be trademarks of their respective owners.
+
+The MySQL software is Dual Licensed. Users can choose to use the MySQL software as an Open Source product under the terms of [the GNU General Public License](http://www.fsf.org/licenses/) or can purchase a standard commercial license from Oracle. See [MySQL License Page](http://www.mysql.com/company/legal/licensing/) for more information on our licensing policies.
+
+유저의 데이터를 저장할 Database는 MySQL로 생성. Body Structure와 동기화가 되도록 하여야하며, 테이블은 다음과 같다.
+
+![database](./img/dbSet.png)
+
+## Structure
+
+![structure](./img/structure.png)
+
++ __NetworkServer__ : Client와의 UDP 동기화 통신을 담당. Receive된 Body의 MessageHeader를 확인한다.
++ __LobbyManager__ : 현재 Login한 User들을 관리.
++ __GameManager__ : 현재 진행되고 있는 게임의 방을 관리.
++ __Database__ : MySQL Server와의 연동을 담당.
+
+## Flowchart
+
+### NetworkListener
 
 통신에 패킷에 포함 될 Body에는 **MessageHeader**가 있다. Server의 NetworkListener는 MessageHeader로 Client의 요청을 구분하여 그 요청을 처리할 수 있는 클래스로 패킷을 전달한다.
 
@@ -45,27 +61,35 @@ enum class MessageHeader
 
     // Game, to GameManager
     READY               = 10,
-    GAME_START          = 11,
-    GAME                = 12,
+    READY_SUCCESS       = 11,
+    READY_FAIL          = 12,
+
+    GAME_START          = 13,
+    GAME                = 14,
+    GAME_END            = 15
+
+    LOGOUT_REQUEST      = 16
 };
 ```
 
-![flowchart](./img/flowchart.png)
+이 중 NetworkListener가 처리를 담당하는 MessageHeader의 목록과, 처리과정을 나타낸 flowchart는 다음과 같다.
 
-### MySQL
++ LOGIN_REQUEST
++ REGISTER_USERID
++ CHANGE_STATUS
++ READY
++ LOGOUT_REQUEST
 
-![mysql](./img/mysql.png)
+![Server_flowchart](./img/flowchart1.png)
 
-The [MySQL™ software](https://dev.mysql.com/) delivers a very fast, multithreaded, multi-user, and robust SQL (Structured Query Language) database server. MySQL Server is intended for mission-critical, heavy-load production systems as well as for embedding into mass-deployed software. Oracle is a registered trademark of Oracle Corporation and/or its affiliates. MySQL is a trademark of Oracle Corporation and/or its affiliates, and shall not be used by Customer without Oracle's express written authorization. Other names may be trademarks of their respective owners.
+### Game
 
-The MySQL software is Dual Licensed. Users can choose to use the MySQL software as an Open Source product under the terms of [the GNU General Public License](http://www.fsf.org/licenses/) or can purchase a standard commercial license from Oracle. See [MySQL License Page](http://www.mysql.com/company/legal/licensing/) for more information on our licensing policies.
+Game이 진행 되는 동안은 Game이 NetworkListener를 통하지 않고 독자적으로 데이터를 주고 받는다.
 
-유저의 데이터를 저장할 Database는 MySQL로 생성. Body Structure와 동기화가 되도록 하여야하며 테이블은 다음과 같다.
+![Game_flowchart](./img/flowchart2.png)
 
-![database](./img/dbSet.png)
+## Requirements
 
-## Execute
-
-```shell
-$./bin/main
-```
++ libboost-dev 1.65.1.0ubuntu1
++ mysql-server 5.7.27-0ubuntu0.18.04.1
++ libmysqlclient-dev 5.7.27-0ubuntu0.18.04.1
